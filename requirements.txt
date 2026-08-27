@@ -1,0 +1,15 @@
+# Install torch first, matched to your CUDA version, e.g.
+#   pip install torch torchvision --index-url https://download.pytorch.org/whl/cu121
+# CPU-only works for the smoke test but not for real training.
+torch>=2.0
+
+# Required by the vendored upstream RadioUNet model code
+# (third_party/RadioUNet/modules.py), which does
+# `from torchvision import models` at import time.
+torchvision>=0.15
+
+numpy>=1.24
+
+# Optional: only for the example panels train.py and evaluate.py render.
+# Everything else degrades gracefully without it.
+matplotlib>=3.7

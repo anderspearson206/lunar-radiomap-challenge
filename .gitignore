@@ -1,0 +1,25 @@
+# environments
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+
+# training output
+runs/
+results/
+*.pt
+*.pth
+
+# data -- downloaded from Kaggle, never committed
+data/
+*.npy
+
+# submissions
+submission.csv
+*.zip
+
+# editors / os
+.ipynb_checkpoints/
+.DS_Store
+.idea/
+.vscode/

@@ -1,0 +1,8 @@
+* text=auto
+
+# Vendored upstream bytes -- must stay LF or the PROVENANCE checksums break.
+third_party/RadioUNet/modules.py -text
+third_party/RadioUNet/LICENSE    -text
+
+*.ipynb text eol=lf
+*.npy   binary
