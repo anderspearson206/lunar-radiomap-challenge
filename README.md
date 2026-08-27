@@ -24,7 +24,7 @@ excluded from scoring. Every training and validation map ships with a **validity
 mask**: 1 = ray-traced, 0 = filled.
 
 Train with a masked loss. Training on every pixel measurably improves the
-all-pixel diagnostic while making the ranked metric *worse* — the voids are
+all-pixel diagnostic while making the ranked metric _worse_ — the voids are
 geometrically structured, so a model can score by learning where the tracer
 failed instead of learning propagation.
 
@@ -56,16 +56,16 @@ python evaluate.py --ckpt runs/<run>_best.pt --data-root <data> --split val
 
 ## What's here
 
-| file | what it is |
-|---|---|
-| `lunar_dataset.py` | reference PyTorch dataloader — also ships with the data |
-| `train.py` | trains the RadioWNet baseline, both stages |
-| `evaluate.py` | scores a checkpoint on `val`, in dB, masked and unmasked |
-| `score_submission.py` | validates a submission directory; `--validate-only` needs no ground truth |
-| `metrics.py` | RMSE / NMSE / PSNR / SSIM, with masked variants |
-| `radiounet.py` | seam onto the vendored upstream model |
-| `RadioUNet/` | upstream RadioWNet model code, MIT (see `RadioUNet/README.md`) |
-| `notebooks/lunar_starter.ipynb` | end-to-end starter, Kaggle-ready |
+| file                            | what it is                                                                |
+| ------------------------------- | ------------------------------------------------------------------------- |
+| `lunar_dataset.py`              | reference PyTorch dataloader — also ships with the data                   |
+| `train.py`                      | trains the RadioUNet baseline, both stages                                |
+| `evaluate.py`                   | scores a checkpoint on `val`, in dB, masked and unmasked                  |
+| `score_submission.py`           | validates a submission directory; `--validate-only` needs no ground truth |
+| `metrics.py`                    | RMSE / NMSE / PSNR / SSIM, with masked variants                           |
+| `radiounet.py`                  | seam onto the vendored upstream model                                     |
+| `RadioUNet/`                    | RadioUNet model code                                                      |
+| `notebooks/lunar_starter.ipynb` | end-to-end starter, Kaggle-ready                                          |
 
 ---
 
@@ -81,7 +81,7 @@ val_index.csv     val_hm.npy     val_pl415.npy     val_mask415.npy
 metadata.json     README.md      lunar_dataset.py
 ```
 
-**Row *i* of `train_pl415.npy` is row *i* of `train_index.csv`.** That ordering
+**Row _i_ of `train_pl415.npy` is row _i_ of `train_index.csv`.** That ordering
 is the contract. Three things are compressed out:
 
 ```python
@@ -99,11 +99,11 @@ mask = np.unpackbits(np.load("train_mask415.npy", mmap_mode="r")[i]).reshape(256
 `lunar_dataset.py` does all of this for you. Always use `mmap_mode="r"` —
 `train_pl415.npy` is 3.4 GB.
 
-| split | terrains | samples/band | targets | masks |
-|---|---|---|---|---|
-| train | 6,120 | 25,720 | ✅ | ✅ |
-| val | 680 | 2,330 | ✅ | ✅ |
-| test | 1,200 | 4,950 | withheld | withheld |
+| split | terrains | samples/band | targets  | masks    |
+| ----- | -------- | ------------ | -------- | -------- |
+| train | 6,120    | 25,720       | ✅       | ✅       |
+| val   | 680      | 2,330        | ✅       | ✅       |
+| test  | 1,200    | 4,950        | withheld | withheld |
 
 Splitting is at **terrain** level: a terrain with 51 transmitters contributes 51
 samples sharing one heightmap, so a per-sample split would leak.
@@ -112,13 +112,13 @@ samples sharing one heightmap, so a per-sample split would leak.
 
 ## Baseline
 
-RadioWNet (Levie et al.), trained with a masked loss. Reference numbers on the
+RadioUNet, trained with a masked loss. Reference numbers on the
 withheld test set, over valid pixels:
 
-| model | 415 MHz | 5.8 GHz | combined (50/50) |
-|---|---|---|---|
-| two band-specific models | 4.66 dB | 6.28 dB | **5.47 dB** |
-| one conditional model | 4.76 dB | 6.42 dB | **5.59 dB** |
+| model                    | 415 MHz | 5.8 GHz | combined (50/50) |
+| ------------------------ | ------- | ------- | ---------------- |
+| two band-specific models | 4.66 dB | 6.28 dB | **5.47 dB**      |
+| one conditional model    | 4.76 dB | 6.42 dB | **5.59 dB**      |
 
 Two stages: `--phase firstU` trains the coarse U-Net, `--phase secondU` the
 refinement on top of it (`--init-from auto` picks up the matching firstU run).
@@ -138,7 +138,7 @@ pl415_00047_00_3,88.19
 (`arr.reshape(-1)` order). Start from `sample_submission.csv` and overwrite `PL`.
 
 > This leaderboard is a **format checker and plays no part in the final
-> ranking.** It scores a subset of the *validation* split, whose ground truth
+> ranking.** It scores a subset of the _validation_ split, whose ground truth
 > ships with the data — anyone can submit the true values and score 0.00. Use it
 > to prove your pipeline works.
 
@@ -164,8 +164,34 @@ If you modify or redistribute that model code, keep its MIT notice intact.
 
 ## Citing
 
+If you use this dataset or build on this challenge, cite **RadioLunaDiff**, the
+work this dataset comes from:
+
+```bibtex
+@inproceedings{torrado2026radiolunadiff,
+  author    = {Torrado, Paolo and Pearson, Anders and Klein, Jason and
+               Moscibroda, Alexander and Smith, Joshua},
+  title     = {{RADIOLUNADIFF}: Estimation of wireless network signal strength
+               in Lunar Terrain},
+  booktitle = {ICASSP 2026 -- 2026 IEEE International Conference on Acoustics,
+               Speech and Signal Processing (ICASSP)},
+  address   = {Barcelona, Spain},
+  year      = {2026},
+  pages     = {21231--21235},
+  doi       = {10.1109/ICASSP55912.2026.11463335}
+}
 ```
-R. Levie, C. Yapar, G. Kutyniok, G. Caire, "RadioUNet: Fast Radio Map Estimation
-with Convolutional Neural Networks", IEEE Transactions on Wireless
-Communications, vol. 20, no. 6, pp. 4001-4015, 2021.
-```
+
+P. Torrado, A. Pearson, J. Klein, A. Moscibroda and J. Smith, "RADIOLUNADIFF:
+Estimation of wireless network signal strength in Lunar Terrain," *ICASSP 2026 -
+2026 IEEE International Conference on Acoustics, Speech and Signal Processing
+(ICASSP)*, Barcelona, Spain, 2026, pp. 21231-21235,
+doi: [10.1109/ICASSP55912.2026.11463335](https://doi.org/10.1109/ICASSP55912.2026.11463335).
+
+Two secondary references, if relevant to what you are reporting:
+
+- **The baseline model** is RadioUNet (Levie et al., 2021) — citation in
+  `RadioUNet/README.md`.
+- **The ground truth** was generated with Sionna RT: J. Hoydis, S. Cammerer,
+  F. Ait Aoudia, M. Nimier-David, L. Maggi, G. Marcus, A. Vem, and A. Keller,
+  "Sionna," 2022.
