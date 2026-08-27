@@ -46,8 +46,6 @@ python -m venv .venv && .venv/bin/activate     # Windows: .venv\Scripts\activate
 pip install torch --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 
-python radiounet.py --verify                   # check the vendored model code
-
 python train.py    --data-root <data> --band 415 --loss masked --phase firstU
 python evaluate.py --ckpt runs/<run>_best.pt --data-root <data> --split val
 ```
@@ -66,7 +64,7 @@ python evaluate.py --ckpt runs/<run>_best.pt --data-root <data> --split val
 | `score_submission.py` | validates a submission directory; `--validate-only` needs no ground truth |
 | `metrics.py` | RMSE / NMSE / PSNR / SSIM, with masked variants |
 | `radiounet.py` | seam onto the vendored upstream model |
-| `third_party/RadioUNet/` | unmodified upstream model code, MIT, checksum-pinned |
+| `RadioUNet/` | upstream RadioWNet model code, MIT (see `RadioUNet/README.md`) |
 | `notebooks/lunar_starter.ipynb` | end-to-end starter, Kaggle-ready |
 
 ---
@@ -158,13 +156,11 @@ python score_submission.py --submission <dir> --data-root <data> --band both --v
 ## Licences
 
 - **This code:** MIT — see `LICENSE`.
-- **`third_party/RadioUNet/`:** MIT, Copyright (c) 2019 Ron Levie. Unmodified
-  upstream bytes at commit `36ab7066`, checksum-pinned; see
-  `third_party/RadioUNet/PROVENANCE.txt`. Verify with `python radiounet.py --verify`.
+- **`RadioUNet/`:** MIT, Copyright (c) 2019 Ron Levie. Unmodified upstream model
+  code; see `RadioUNet/README.md` for the source and citation.
 - **The dataset:** CC BY 4.0, distributed via Kaggle.
 
-If you modify or redistribute the vendored model code, keep its MIT notice
-intact. Do not edit those files in place — the checksum verification will fail.
+If you modify or redistribute that model code, keep its MIT notice intact.
 
 ## Citing
 
