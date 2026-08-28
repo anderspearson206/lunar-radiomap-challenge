@@ -12,13 +12,13 @@ from Sionna RT ray-tracing over synthetic lunar topography at 1 m/px.
 
 ---
 
-## The metric, in one paragraph
+## Metric
 
 **RMSE in dB over valid (ray-traced) pixels only**, computed separately per band
 and weighted 50/50.
 
-The ray tracer could not resolve every cell, and the unresolved cells were
-gap-filled — at 5.8 GHz with a static placeholder of exactly 145.0 dB, covering
+The ray tracer could not resolve every cell, for previous work the unresolved cells were
+gap-filled. At 5.8 GHz with a static placeholder of exactly 145.0 dB, covering
 about 11.4% of pixels. Those values are placeholders, not physics, and they are
 excluded from scoring. Every training and validation map ships with a **validity
 mask**: 1 = ray-traced, 0 = filled.
@@ -28,8 +28,7 @@ all-pixel diagnostic while making the ranked metric _worse_ — the voids are
 geometrically structured, so a model can score by learning where the tracer
 failed instead of learning propagation.
 
-You submit full 256×256 maps. The organizers apply the mask at scoring time, so
-you never need the test masks.
+You submit full 256×256 maps. The organizers apply the mask at scoring time.
 
 ---
 
@@ -127,7 +126,7 @@ refinement on top of it (`--init-from auto` picks up the matching firstU run).
 
 ## Submitting
 
-**Now — the Kaggle leaderboard.** One row per pixel:
+**Kaggle leaderboard.** One row per pixel:
 
 ```
 ID,PL
@@ -139,10 +138,10 @@ pl415_00047_00_3,88.19
 
 > This leaderboard is a **format checker and plays no part in the final
 > ranking.** It scores a subset of the _validation_ split, whose ground truth
-> ships with the data — anyone can submit the true values and score 0.00. Use it
+> ships with the data, anyone can submit the true values and score 0.00. Use it
 > to prove your pipeline works.
 
-**December — the real submission.** Not a CSV. One `.npy` per test sample per
+**Final Submission in December.** Not a CSV. One `.npy` per test sample per
 band (`pl415_<sample_id>.npy`, `pl58_<sample_id>.npy`), each 256×256 in dB, plus
 your trained model and inference code. Inference must stay under **500 ms** per
 map. Check your directory before sending:
@@ -168,25 +167,22 @@ If you use this dataset or build on this challenge, cite **RadioLunaDiff**, the
 work this dataset comes from:
 
 ```bibtex
-@inproceedings{torrado2026radiolunadiff,
-  author    = {Torrado, Paolo and Pearson, Anders and Klein, Jason and
-               Moscibroda, Alexander and Smith, Joshua},
-  title     = {{RADIOLUNADIFF}: Estimation of wireless network signal strength
+@inproceedings{radiolunadiff2026,
+  title     = {{RadioLunaDiff}: Estimation of Wireless Network Signal Strength
                in Lunar Terrain},
+  author    = {Torrado, P. and Pearson, A. and Klein, J. and
+               Moscibroda, A. and Smith, J.},
   booktitle = {ICASSP 2026 -- 2026 IEEE International Conference on Acoustics,
                Speech and Signal Processing (ICASSP)},
-  address   = {Barcelona, Spain},
-  year      = {2026},
   pages     = {21231--21235},
-  doi       = {10.1109/ICASSP55912.2026.11463335}
+  year      = {2026}
 }
 ```
 
-P. Torrado, A. Pearson, J. Klein, A. Moscibroda and J. Smith, "RADIOLUNADIFF:
-Estimation of wireless network signal strength in Lunar Terrain," *ICASSP 2026 -
-2026 IEEE International Conference on Acoustics, Speech and Signal Processing
-(ICASSP)*, Barcelona, Spain, 2026, pp. 21231-21235,
-doi: [10.1109/ICASSP55912.2026.11463335](https://doi.org/10.1109/ICASSP55912.2026.11463335).
+P. Torrado, A. Pearson, J. Klein, A. Moscibroda, and J. Smith, "RadioLunaDiff:
+Estimation of wireless network signal strength in lunar terrain," in _ICASSP 2026
+— 2026 IEEE International Conference on Acoustics, Speech and Signal Processing
+(ICASSP)_, 2026, pp. 21231–21235.
 
 Two secondary references, if relevant to what you are reporting:
 
