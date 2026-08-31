@@ -2,8 +2,7 @@
 Access to the RadioUNet model code.
 
 The RadioWNet architecture is not reimplemented here. The authors' model code is
-included unmodified under ``RadioUNet/modules.py`` (MIT, Copyright (c) 2019 Ron
-Levie -- see ``RadioUNet/README.md``), and this module is the seam between that
+included unmodified under ``RadioUNet/modules.py`` this module is the seam between that
 file and the rest of the baseline.
 
     from radiounet import RadioWNet

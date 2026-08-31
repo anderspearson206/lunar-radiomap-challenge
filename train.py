@@ -18,11 +18,7 @@ be seeded from a trained ``firstU`` run; ``--init-from auto`` (the default for
 
 Valid pixels only
 -----------------
-Training and scoring both happen on ray-traced pixels only. The 5.8 GHz targets
-carry a static 145.0 dB fill where the ray tracer could not resolve a cell --
-~11% of pixels, and a majority of a few maps. That value is a placeholder, not
-physics, and counting it rewards a model for reproducing the simulator's failure
-modes rather than lunar propagation.
+Training and scoring both happen on ray-traced pixels only. 
 
     --loss masked    (default) MSE over ray-traced pixels only
     --loss plain     MSE over every pixel, including the fill
@@ -79,8 +75,8 @@ from torch.utils.data import DataLoader
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from metrics import MetricAccumulator, save_example_panels  # noqa: E402
-from radiounet import RadioWNet, trains_in_phase  # noqa: E402
+from metrics import MetricAccumulator, save_example_panels 
+from radiounet import RadioWNet, trains_in_phase  
 
 
 def load_dataset_module(data_root):
@@ -103,7 +99,7 @@ def set_seed(seed):
 def resolve_init_from(args):
     """Checkpoint whose weights seed this run; 'auto' means the matching firstU run.
 
-    Weights only -- the optimizer, the LR schedule and the epoch counter all
+    Weights only, the optimizer, the LR schedule and the epoch counter all
     start fresh, because this is a new stage rather than a continuation.
     """
     if args.init_from != "auto":
@@ -121,10 +117,6 @@ def resolve_init_from(args):
 
 
 def make_loaders(ld, args):
-    # Masks are always loaded: the ranking metric is computed over valid pixels
-    # regardless of which loss trained the run, so both arms read the same data.
-    # The consolidated mask arrays are row-aligned with the index and cover
-    # every row, so there is no partial-mask case left to guard against.
     common = dict(root=args.data_root, band=args.band, return_mask=True)
     train_ds = ld.LunarRadioMapDataset(split="train", augment=not args.no_augment,
                                        **common)
@@ -202,22 +194,14 @@ def main(args):
 
     train_loader, val_loader, ds = make_loaders(ld, args)
 
-    # dB per unit of normalized target -- so RMSE is reported in real units
+    # dB per unit of normalized target so RMSE is reported in real units
     lo, hi = ds.pl_min, ds.pl_max
     scale = float(hi - lo)
     in_ch = 3 if args.band == "both" else 2
 
-    # RadioWNet returns [out1, out2]. In "firstU" the refinement is detached; in
-    # "secondU" the first U-Net is. Train and score whichever one this phase
-    # actually optimizes.
     out_idx = 0 if args.phase == "firstU" else 1
     model = RadioWNet(inputs=in_ch, phase=args.phase).to(device)
-
-    # The frozen half is detached inside forward(), so it gets no gradient either
-    # way; setting requires_grad to match makes that explicit and gives an honest
-    # parameter count. The optimizer still takes every parameter, which keeps its
-    # state_dict layout identical across phases so --resume stays compatible --
-    # Adam skips parameters whose grad is None.
+    
     for pname, prm in model.named_parameters():
         prm.requires_grad_(trains_in_phase(pname, args.phase))
     n_train = sum(p.numel() for p in model.parameters() if p.requires_grad)
@@ -225,10 +209,7 @@ def main(args):
     print(f"trainable params {n_train:,} / {n_total:,} ({args.phase} half)")
 
     opt = torch.optim.Adam(model.parameters(), lr=args.lr)
-    # Cosine by default: step decay only fits a run whose length matches the
-    # schedule. At 0.1-every-20-epochs it reaches 1e-7 by epoch 60, so a
-    # 150-epoch run spends its last 90 epochs not learning. Cosine spreads the
-    # same range over whatever --epochs is set to.
+
     if args.lr_sched == "cosine":
         sched = torch.optim.lr_scheduler.CosineAnnealingLR(
             opt, T_max=args.epochs, eta_min=args.lr_min)
@@ -251,16 +232,7 @@ def main(args):
             ck = torch.load(path, map_location=device)
             model.load_state_dict(ck["model"])
             opt.load_state_dict(ck["opt"])
-            # A checkpoint written under a different scheduler carries fields
-            # that do not describe this one; replaying the epoch count is the
-            # only faithful way to place a new schedule on a resumed run.
-            #
-            # The same applies when only the LENGTH changed, and there it is not
-            # cosmetic: state_dict carries T_max, so loading it into a longer run
-            # silently restores the OLD horizon and then steps past it. Cosine's
-            # recursive form does not clamp -- resuming a finished 80-epoch
-            # cosine with --epochs 200 walks the LR up to ~2.6e-1, 2600x base,
-            # which destroys the model in one epoch. Replay instead.
+
             prev_sched = ck.get("lr_sched", "step")
             prev_len = ck["sched"].get("T_max") if args.lr_sched == "cosine" else None
             len_changed = prev_len is not None and prev_len != args.epochs
@@ -272,17 +244,10 @@ def main(args):
                        f"checkpoint cosine ran to {prev_len} epochs, this run to "
                        f"{args.epochs}")
                 print(f"{why}; replaying the new schedule to that epoch")
-                # Cosine's recursive update reads the CURRENT group lr, and
-                # opt.load_state_dict() just restored the OLD schedule's final
-                # one -- for a cosine that ran to completion, exactly eta_min.
-                # Replaying from there leaves the LR pinned at the floor for the
-                # whole resumed run, because every subsequent step scales a value
-                # that is already eta_min. Reset to the base LR so the replay
-                # walks the NEW schedule from its start.
+
                 for group, base_lr in zip(opt.param_groups, sched.base_lrs):
                     group["lr"] = base_lr
-                # stepping without an intervening opt.step() is exactly what the
-                # replay needs, so silence the warning torch raises about it
+
                 with warnings.catch_warnings():
                     warnings.simplefilter("ignore", UserWarning)
                     for _ in range(ck["epoch"] + 1):
@@ -296,8 +261,7 @@ def main(args):
         else:
             print("no checkpoint to resume; starting fresh")
 
-    # Seeding a new stage. Weights only: a resumed run already carries its own
-    # optimizer state, so --init-from applies exactly when --resume found nothing.
+
     if args.init_from and not resumed:
         path = resolve_init_from(args)
         ck = torch.load(path, map_location=device)
@@ -314,8 +278,6 @@ def main(args):
               "U-Net is untrained, so its output is noise. Pass --init-from "
               "<firstU checkpoint>.")
 
-    # Fixed example set, spread across the validation split so the panels cover a
-    # range of fill fractions rather than clustering on similar maps.
     n_val = len(val_loader.dataset)
     k = min(args.panels, n_val)
     panel_idx = ([int(round(i * (n_val - 1) / max(k - 1, 1))) for i in range(k)]
@@ -358,7 +320,7 @@ def main(args):
                            limit=args.limit_batches)
         train_loss = running / max(seen, 1)
         dt = time.time() - t0
-        # the ranking metric leads; all-pixel RMSE trails as a diagnostic
+        # the ranking metric leads, all-pixel RMSE trails as a diagnostic
         msg = (f"epoch {epoch}: train_loss {train_loss:.6f}  "
                f"rmse {metrics['val/rmse_db_masked']:.3f} dB (valid px)  "
                f"psnr {metrics['val/psnr_db']:.2f}  "

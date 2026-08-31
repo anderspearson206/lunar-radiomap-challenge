@@ -1,9 +1,9 @@
 """
 Score a trained checkpoint on the validation split, or on the withheld test set.
 
-Reports the four metrics the training loop tracks -- RMSE (dB), PSNR, SSIM and
-NMSE -- each with a masked variant where masking is meaningful (SSIM is
-deliberately not masked; see metrics.py). Results go to stdout and to a JSON
+Reports the four metrics the training loop tracks, RMSE (dB), PSNR, SSIM and
+NMSE, each with a masked variant where masking is meaningful (SSIM is
+deliberately not mask, see metrics.py). Results go to stdout and to a JSON
 file carrying a summary, a per-band breakdown and a per-sample table.
 
     rmse_db_masked   THE RANKING METRIC -- ray-traced pixels only
@@ -12,7 +12,7 @@ file carrying a summary, a per-band breakdown and a per-sample table.
 Scoring is over valid pixels only. The 5.8 GHz targets carry a 145.0 dB
 placeholder where the ray tracer could not resolve a cell; it is not physics, and
 counting it rewards reproducing the simulator's failure modes. Predictions are
-submitted as full 256x256 maps -- the mask is applied here, at scoring time, so
+submitted as full 256x256 maps,  the mask is applied here, at scoring time, so
 nothing about void geometry has to be handed to entrants.
 
 Splits
@@ -31,7 +31,7 @@ A band=both checkpoint is scored on both bands at once; the summary then carries
 a per-band breakdown as well as the pooled numbers, since 415 MHz and 5.8 GHz
 are very different problems and a pooled RMSE hides which one moved.
 
-The full model is the secondU checkpoint -- it carries both halves, so
+The full model is the secondU checkpoint, it carries both halves, so
 ``--phase firstU`` scores its coarse output and ``--phase secondU`` the refined
 one, which is how you measure what the refinement bought.
 """
@@ -48,7 +48,7 @@ from torch.utils.data import DataLoader, Dataset
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from metrics import MetricAccumulator, save_example_panels, ssim  # noqa: E402
+from metrics import MetricAccumulator, save_example_panels, ssim  
 from radiounet import RadioWNet  # noqa: E402
 
 BANDS = ("415", "58")
@@ -70,10 +70,10 @@ class ScoredSet(Dataset):
     thin pass-through. On ``test`` the public tree has no targets
     (``metadata.json``: test ``has_targets`` false), so the target is read here
     from the ground-truth tree. Doing that inside the Dataset rather than in the
-    eval loop means the DataLoader workers parallelize it -- it is one more .npy
+    eval loop means the DataLoader workers parallelize it, it is one more .npy
     read per sample, and I/O, not the GPU, is the bottleneck.
 
-    Items are ``(x, y, mask, name, band)``; mask is an empty tensor when masks
+    Items are ``(x, y, mask, name, band)``, mask is an empty tensor when masks
     are off.
     """
 
@@ -121,7 +121,7 @@ def main(args):
     if args.split == "test":
         raise SystemExit(
             "--split test cannot be scored here: the targets and the validity "
-            "masks are both withheld. Score --split val instead -- it is "
+            "masks are both withheld. Score --split val instead, it is "
             "held-out data you do have. The organizers score the test set with "
             "score_submission.py after the deadline.")
 

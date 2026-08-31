@@ -21,13 +21,6 @@ SSIM is deliberately NOT masked: it is a windowed statistic, so zeroing pixels
 inside the window changes local means and variances and produces a number that
 is not comparable to the unmasked one.
 
-The 5.8 GHz ground truth contains a static 145.0 dB fill where the ray tracer
-could not resolve a cell -- roughly 11% of pixels. It is a placeholder rather
-than a simulated value, so it is excluded from scoring: ``rmse_db_masked``, over
-ray-traced pixels only, is the number that ranks submissions. ``rmse_db`` is
-kept as a diagnostic -- comparing the two tells you how much of a model's
-apparent skill is really just reproducing the fill.
-
 Plain torch, so nothing here needs torchmetrics or skimage.
 """
 
@@ -157,8 +150,8 @@ def save_example_panels(path, x, pred, target, mask, lo, scale, names,
     prediction looks the same every epoch; passing ``base`` adds a panel of
     ``pred - base``, which is the part that actually trains.
 
-    ``err_lim`` fixes the error colour scale in dB. Auto-scaling it per epoch
-    makes a shrinking error render identically every time -- only the colourbar
+    ``err_lim`` fixes the error color scale in dB. Auto-scaling it per epoch
+    makes a shrinking error render identically every time, only the colorbar
     numbers move -- which is exactly the "nothing is changing" illusion.
     """
     try:
@@ -206,7 +199,7 @@ def save_example_panels(path, x, pred, target, mask, lo, scale, names,
         rows.append((panels, label))
 
     ncol = max(len(p) for p, _ in rows)
-    # Height per row is tuned to the square maps plus their colourbars; giving
+    # Height per row is tuned to the square maps plus their colourbars giving
     # rows more than that leaves a band of white between every example.
     fig, axes = plt.subplots(len(rows), ncol, figsize=(3.1 * ncol, 2.95 * len(rows)),
                              squeeze=False)

@@ -14,7 +14,7 @@ One ``.npy`` per test sample per band, flat in one directory:
     ...
 
 The stem after the band prefix is the ``sample_id`` from ``test/index.csv``.
-Predictions are **full maps in dB** -- the validity mask is applied here, at
+Predictions are **full maps in dB**, the validity mask is applied here, at
 scoring time, so entrants never receive the test masks. Values are not clipped
 to the physical range: a prediction outside it is scored as the error it is.
 
@@ -31,7 +31,7 @@ The metric
 ``combined_rmse_db_masked`` is the plain 50/50 mean of the two per-band masked
 RMSEs. It is NOT the final rank: the published ranking normalizes each band's
 RMSE across all participating teams and sums, which cannot be computed from one
-submission in isolation. This script produces the per-band numbers that feed it.
+submission in isolation. This script produces the per-band numbers that feed the ranking.
 
 Usage
 -----
@@ -86,7 +86,7 @@ def load_map(path):
     """
     try:
         a = np.load(path, allow_pickle=False)
-    except Exception as e:  # noqa: BLE001 -- surface the real reason to the operator
+    except Exception as e: 
         raise ValueError(f"unreadable ({type(e).__name__}: {e})") from None
     if a.shape != GRID:
         raise ValueError(f"shape {a.shape}, expected {GRID}")
@@ -173,7 +173,6 @@ def score(args):
     accs.update({b: MetricAccumulator(scale) for b in bands})
     per_sample = []
 
-    # Stream in batches: 9,900 maps at float32 would be ~2.6 GB held at once.
     for band in bands:
         buf_p, buf_t, buf_m, buf_id = [], [], [], []
 

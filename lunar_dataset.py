@@ -14,7 +14,7 @@ Deliberately minimal: heightmap + TX one-hot in, pathloss out.
     x, y = next(iter(loader))     # x: (B, 2, 256, 256)   y: (B, 1, 256, 256)
 
 ``band="both"`` serves both frequencies from one dataset and appends a third
-input channel -- 0.0 for 415 MHz, 1.0 for 5.8 GHz -- for a single conditional
+input channel, 0.0 for 415 MHz, 1.0 for 5.8 GHz, for a single conditional
 model. ``return_mask=True`` adds the validity mask, which is what you want for a
 masked loss. ``augment=True`` applies random flips and 90-degree rotations
 consistently across every map in a sample; use it for training only.
@@ -25,13 +25,13 @@ The released data is stored as **consolidated arrays**, one per split per field,
 rather than one file per sample. Row *i* of ``pl415.npy`` is row *i* of
 ``index.csv``. Two consequences the loader hides from you:
 
-* **Heightmaps are deduplicated.** A terrain carrying 51 transmitters has 51
+* Heightmaps are deduplicated. A terrain carrying 51 transmitters has 51
   samples sharing one heightmap, so ``hm.npy`` has one row per *terrain* and
   ``index.csv`` carries an ``hm_row`` column pointing into it.
 * **TX maps are not stored.** A one-hot 256x256 array is fully described by two
   integers, so ``index.csv`` carries ``tx_row``/``tx_col`` and the one-hot is
-  rebuilt on load. This removes ~2.2 GB of pure redundancy.
-* **Masks are bit-packed** with ``np.packbits`` -- exact, 8x smaller.
+  rebuilt on load, this removes ~2.2 GB of pure redundancy.
+* **Masks are bit-packed** with ``np.packbits`` - exact, 8x smaller.
 
 Layouts
 -------
@@ -85,14 +85,14 @@ class LunarRadioMapDataset(Dataset):
         :meth:`denormalize_pathloss` to get dB back.
     augment : bool
         Random flips and 90-degree rotations, applied identically to every map in
-        a sample. Training only -- leaving it on for val moves the numbers.
+        a sample. Training only, leaving it on for val moves the numbers.
     return_name : bool
         Append the sample name to each item.
     return_mask : bool
         Append the validity mask: 1 where the ray tracer produced a value, 0
         where it was gap-filled. Unavailable for the test split.
 
-    Items are ``(input, target[, mask][, name])`` -- mask before name, and
+    Items are ``(input, target[, mask][, name])``, mask before name, and
     ``target`` is absent for the test split.
     """
 
