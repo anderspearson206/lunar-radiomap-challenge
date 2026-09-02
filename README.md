@@ -24,7 +24,7 @@ excluded from scoring. Every training and validation map ships with a **validity
 mask**: 1 = ray-traced, 0 = filled.
 
 Train with a masked loss. Training on every pixel measurably improves the
-all-pixel diagnostic while making the ranked metric _worse_ — the voids are
+all-pixel diagnostic while making the ranked metric _worse_ - the voids are
 geometrically structured, so a model can score by learning where the tracer
 failed instead of learning propagation.
 
@@ -34,7 +34,7 @@ You submit full 256×256 maps. The organizers apply the mask at scoring time.
 
 ## Quick start
 
-**On Kaggle** — open `notebooks/lunar_starter.ipynb`, attach the competition
+Open `notebooks/lunar_starter.ipynb` (on Kaggle, in Google Colab, locally...), attach the competition
 data, run it top to bottom. It loads the arrays, trains a small baseline, and
 writes a correctly formatted `submission.csv`.
 
@@ -57,7 +57,7 @@ python evaluate.py --ckpt runs/<run>_best.pt --data-root <data> --split val
 
 | file                            | what it is                                                                |
 | ------------------------------- | ------------------------------------------------------------------------- |
-| `lunar_dataset.py`              | reference PyTorch dataloader — also ships with the data                   |
+| `lunar_dataset.py`              | reference PyTorch dataloader                                              |
 | `train.py`                      | trains the RadioUNet baseline, both stages                                |
 | `evaluate.py`                   | scores a checkpoint on `val`, in dB, masked and unmasked                  |
 | `score_submission.py`           | validates a submission directory; `--validate-only` needs no ground truth |
@@ -71,7 +71,7 @@ python evaluate.py --ckpt runs/<run>_best.pt --data-root <data> --split val
 ## The data
 
 Download from Kaggle and unpack at one root. It is **consolidated arrays**, one
-file per split per field — not one file per sample:
+file per split per field not one file per sample:
 
 ```
 train_index.csv   train_hm.npy   train_pl415.npy   train_mask415.npy
@@ -95,7 +95,7 @@ tx[int(row["tx_row"]), int(row["tx_col"])] = 1.0
 mask = np.unpackbits(np.load("train_mask415.npy", mmap_mode="r")[i]).reshape(256, 256)
 ```
 
-`lunar_dataset.py` does all of this for you. Always use `mmap_mode="r"` —
+`lunar_dataset.py` does all of this for you. Always use `mmap_mode="r"` -
 `train_pl415.npy` is 3.4 GB.
 
 | split | terrains | samples/band | targets  | masks    |
@@ -154,7 +154,7 @@ python score_submission.py --submission <dir> --data-root <data> --band both --v
 
 ## Licences
 
-- **This code:** MIT — see `LICENSE`.
+- **This code:** MIT - see `LICENSE`.
 - **`RadioUNet/`:** MIT, Copyright (c) 2019 Ron Levie. Unmodified upstream model
   code; see `RadioUNet/README.md` for the source and citation.
 - **The dataset:** CC BY 4.0, distributed via Kaggle.
@@ -180,13 +180,14 @@ work this dataset comes from:
 ```
 
 P. Torrado, A. Pearson, J. Klein, A. Moscibroda, and J. Smith, "RadioLunaDiff:
-Estimation of wireless network signal strength in lunar terrain," in _ICASSP 2026
-— 2026 IEEE International Conference on Acoustics, Speech and Signal Processing
-(ICASSP)_, 2026, pp. 21231–21235.
+Estimation of wireless network signal strength in lunar terrain," in \_ICASSP 2026
+
+- 2026 IEEE International Conference on Acoustics, Speech and Signal Processing
+  (ICASSP)\_, 2026, pp. 21231–21235.
 
 Two secondary references, if relevant to what you are reporting:
 
-- **The baseline model** is RadioUNet (Levie et al., 2021) — citation in
+- **The baseline model** is RadioUNet (Levie et al., 2021) - citation in
   `RadioUNet/README.md`.
 - **The ground truth** was generated with Sionna RT: J. Hoydis, S. Cammerer,
   F. Ait Aoudia, M. Nimier-David, L. Maggi, G. Marcus, A. Vem, and A. Keller,
