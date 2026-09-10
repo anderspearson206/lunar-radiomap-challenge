@@ -7,7 +7,7 @@ Given a 256×256 lunar heightmap and a one-hot transmitter position, predict the
 256×256 pathloss map in dB, at **415 MHz** and **5.8 GHz**. Ground truth comes
 from Sionna RT ray-tracing over synthetic lunar topography at 1 m/px.
 
-- **Data and leaderboard:** [Kaggle competition](https://www.kaggle.com/competitions/the-first-lunar-pathloss-radio-map-prediction-challenge)
+- **Data and leaderboard:** [Kaggle competition](https://www.kaggle.com/t/1e9cf1fa5c774010a6922e98abb60449)
 - **Challenge site:** https://lunarradiomapchallenge.github.io
 
 ---
